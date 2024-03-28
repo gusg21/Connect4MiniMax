@@ -28,8 +28,11 @@ func _input(event):
 
 func on_clicked():
 	if board.can_place_at(board_pos.x) and Globals.CONNECT4.current_turn == "player":
-		board.place_at(board_pos.x, player_color)
-		Globals.CONNECT4.finish_turn()
+		if Globals.CONNECT4.edit_mode:
+			board.place_at(board_pos.x, Globals.CONNECT4.edit_color)
+		else:
+			board.place_at(board_pos.x, player_color)
+			Globals.CONNECT4.finish_turn()
 
 func set_state(state: String):
 	if state == "none":

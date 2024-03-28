@@ -21,9 +21,10 @@ func try_get(board, pos):
 	if pos.x < 0 or pos.x > 6 or \
 		pos.y < 0 or pos.y > 5:
 		return "none"
+	return board[pos]
 
 func has_win(board):
-	for x in range(7 - 4):
+	for x in range(7):
 		for y in range(6):
 			var pos = Vector2(x, y)
 			if board[pos] != "none":
@@ -45,25 +46,16 @@ func has_win(board):
 					try_get(board, pos+Vector2.RIGHT*2) == side and \
 					try_get(board, pos+Vector2.RIGHT*3) == side:
 					return side
-				
-				# down-right
-				if try_get(board, pos+Vector2.DOWN+Vector2.RIGHT) == side and \
-					try_get(board, pos+Vector2.DOWN*2+Vector2.RIGHT*2) == side and \
-					try_get(board, pos+Vector2.DOWN*3+Vector2.RIGHT*3) == side:
-					return side
-				
-				# down
-				if try_get(board, pos+Vector2.DOWN) == side and \
-					try_get(board, pos+Vector2.DOWN*2) == side and \
-					try_get(board, pos+Vector2.DOWN*3) == side:
-					return side
 	
 	return "none"
 
 func print_board(board):
 	for y in range(6):
 		for x in range(7):
-			printraw(board[Vector2(x, y)])
+			if board[Vector2(x, y)] != "none":
+				printraw(board[Vector2(x, y)][0])
+			else:
+				printraw(" ")
 		printraw("\n")
 
 func apply_move_to_board(board: Dictionary, move, color):
@@ -81,23 +73,24 @@ func flip_side(side):
 	return "red" if side == "yellow" else "yellow"
 
 func eval(board, side, depth):
-	if depth >= 5:
-		return 0
-	
 	if has_win(board) == side:
 		return 1000
 	elif has_win(board) == flip_side(side):
 		return -1000
 	
+	if depth >= Globals.CONNECT4.depth:
+		return 0
+	
 	var options = {}
 	
 	for option in range(7):
 		if can_place_at(board, option):
-			var new_board = apply_move_to_board(board, option, side)
-			var other_side = flip_side(side)
-			options[option] = eval(new_board, other_side, depth + 1)
+			var other_side = flip_side(side)			
+			var new_board = apply_move_to_board(board, option, other_side)
+			var eval_ = -eval(new_board, other_side, depth + 1)
+			options[option] = eval_
 			print_board(new_board)
-			print("eval: " + str(options[option]))
+			print("eval: " + str(eval_))
 	
 	# Would be so much better if i had a k/v pair iterator!! @godot!!
 	var best_opt = 0
@@ -115,8 +108,7 @@ func get_best_move(board, side):
 	for move in range(7):
 		if can_place_at(board, move):
 			var new_board = apply_move_to_board(board, move, side)
-			var other_side = flip_side(side)
-			options[move] = eval(new_board, other_side, 0)
+			options[move] = eval(new_board, side, 0)
 	
 	# Would be so much better if i had a k/v pair iterator!! @godot!!
 	var best_opt = 0
@@ -131,15 +123,13 @@ func get_best_move(board, side):
 func think(board, side):
 	mutex.lock()
 	best_answer = get_best_move(board, side)
-		
-	if stop_requested:
-		return
 	mutex.unlock()
 
 func get_answer():
 	var answer = 0
 	mutex.lock()
 	stop_requested = true
+	thinking_thread.wait_to_finish()
 	answer = best_answer
 	mutex.unlock()
 	return answer

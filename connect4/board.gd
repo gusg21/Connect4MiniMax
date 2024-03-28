@@ -46,6 +46,9 @@ func place_at(row, color):
 
 func get_board():
 	return board
+	
+func get_winner():
+	return Globals.AI_.has_win(get_board())
 
 func update_board():
 	for x in range(BOARD_WIDTH):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://d1sursjkoe63l"]
+[gd_scene load_steps=14 format=3 uid="uid://d1sursjkoe63l"]
 
 [ext_resource type="Script" path="res://connect4/board.gd" id="1_3jsp4"]
 [ext_resource type="Script" path="res://connect4/connect4.gd" id="1_hf7nb"]
@@ -6,11 +6,16 @@
 [ext_resource type="Script" path="res://connect4/hud/progress_bar.gd" id="4_dj5vb"]
 [ext_resource type="FontFile" uid="uid://bqml2wi1nw2yr" path="res://fonts/Nunito-SemiBold.ttf" id="4_ep2ud"]
 [ext_resource type="Script" path="res://connect4/ai.gd" id="4_jqex6"]
+[ext_resource type="Script" path="res://connect4/hud/board_checker.gd" id="5_htqv3"]
 [ext_resource type="Script" path="res://connect4/hud/game_state_label.gd" id="5_v07fy"]
+[ext_resource type="Script" path="res://connect4/hud/edit_mode_toggle.gd" id="6_0jws7"]
+[ext_resource type="Script" path="res://connect4/hud/color_toggle.gd" id="7_5ws8o"]
+[ext_resource type="Script" path="res://connect4/hud/eval_button.gd" id="8_ordl3"]
+[ext_resource type="Script" path="res://connect4/hud/depth_label.gd" id="9_algwu"]
 
 [sub_resource type="Theme" id="Theme_umt1t"]
 default_font = ExtResource("4_ep2ud")
-default_font_size = 60
+default_font_size = 16
 
 [node name="Connect4" type="Node2D"]
 script = ExtResource("1_hf7nb")
@@ -71,6 +76,30 @@ script = ExtResource("5_v07fy")
 layout_mode = 2
 max_value = 1.0
 script = ExtResource("4_dj5vb")
+
+[node name="Label2" type="Label" parent="HUD/Container/MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("5_htqv3")
+
+[node name="EditMode" type="CheckBox" parent="HUD/Container/MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+button_pressed = true
+text = "Edit Mode"
+script = ExtResource("6_0jws7")
+
+[node name="CheckButton" type="CheckButton" parent="HUD/Container/MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "yellow"
+script = ExtResource("7_5ws8o")
+
+[node name="EvalButton" type="Button" parent="HUD/Container/MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Eval"
+script = ExtResource("8_ordl3")
+
+[node name="Depth" type="Label" parent="HUD/Container/MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("9_algwu")
 
 [node name="Game" type="CanvasLayer" parent="."]
 layer = 0

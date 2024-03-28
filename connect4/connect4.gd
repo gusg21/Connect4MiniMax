@@ -6,6 +6,9 @@ const AI_TURN_TIME = 5.0
 
 var current_turn = "player"
 var ai_timer: SceneTreeTimer
+var depth: int = 3
+var edit_mode: bool = true
+var edit_color: String = "red"
 
 func _ready():
 	Globals.CONNECT4 = self
@@ -29,9 +32,10 @@ func do_turn():
 func finish_turn():
 	if current_turn == "ai":
 		var ai_move = Globals.AI_.get_answer()
-		print(ai_move)
+		Globals.BOARD.place_at(ai_move, "yellow")
 		current_turn = "player"
 	elif current_turn == "player":
 		current_turn = "ai"
 	
-	do_turn()
+	if Globals.BOARD.get_winner() == "none":
+		do_turn()
