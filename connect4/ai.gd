@@ -70,55 +70,77 @@ func can_place_at(board: Dictionary, move):
 	return board[Vector2(move, 0)] == "none"
 	
 func flip_side(side):
-	return "red" if side == "yellow" else "yellow"
+	if side == "yellow":
+		return "red"
+	if side == "red":
+		return "yellow"
+	
+	printerr("Can't flip side %s" % [side])
+	return "none"
 
-func eval(board, side, depth):
+func eval(board, side, worst, depth):
+	var other_side = flip_side(side)	
+	
 	if has_win(board) == side:
-		return 1000
-	elif has_win(board) == flip_side(side):
-		return -1000
+		return [1000, -1]
+	elif has_win(board) == other_side:
+		return [-1000, -1]
 	
 	if depth >= Globals.CONNECT4.depth:
-		return 0
+		return [0, -1]
 	
-	var options = {}
+	var best_move = -1
+	var best_move_eval = INF if worst else -INF
+	var moves = range(7)
+	moves.shuffle()
+	for move in moves:
+		if can_place_at(board, move):
+			var new_board = apply_move_to_board(board, move, other_side)
+			var eval_ = eval(new_board, other_side, not worst, depth + 1)[0]
+			print("%sm#%s: %s (as %s)" % ["\t".repeat(depth), move, eval_, other_side])
+			if worst:
+				if eval_ < best_move_eval:
+					best_move_eval = eval_
+					best_move = move
+			else:
+				if eval_ > best_move_eval:
+					best_move_eval = eval_
+					best_move = move
+			#print_board(new_board)
+			#print("eval: " + str(eval_))
 	
-	for option in range(7):
-		if can_place_at(board, option):
-			var other_side = flip_side(side)			
-			var new_board = apply_move_to_board(board, option, other_side)
-			var eval_ = -eval(new_board, other_side, depth + 1)
-			options[option] = eval_
-			print_board(new_board)
-			print("eval: " + str(eval_))
+	if depth == 0:
+		print("--> %s (e %s)" % [best_move, best_move_eval])
 	
-	# Would be so much better if i had a k/v pair iterator!! @godot!!
-	var best_opt = 0
-	var best_opt_val = -INF
-	for option in options.keys():
-		if options[option] > best_opt_val:
-			best_opt_val = options[option]
-			best_opt = option
+	return [best_move_eval, best_move]
 	
-	return best_opt
+	## Would be so much better if i had a k/v pair iterator!! @godot!!
+	#var best_opt = 0
+	#var best_opt_val = INF
+	#for option in options.keys():
+		#if options[option] < best_opt_val:
+			#best_opt_val = options[option]
+			#best_opt = option
+	#
+	#return best_opt_val
 
 func get_best_move(board, side):
-	var options = {}
+	#var options = {}
 	
-	for move in range(7):
-		if can_place_at(board, move):
-			var new_board = apply_move_to_board(board, move, side)
-			options[move] = eval(new_board, side, 0)
+	#for move in range(7):
+		#if can_place_at(board, move):
+			#var new_board = apply_move_to_board(board, move, side)
+			#options[move] = eval(new_board, side, 1, 0)
+	#
+	## Would be so much better if i had a k/v pair iterator!! @godot!!
+	#var best_opt = 0
+	#var best_opt_val = -INF
+	#for option in options.keys():
+		#if options[option] > best_opt_val:
+			#best_opt_val = options[option]
+			#best_opt = option
 	
-	# Would be so much better if i had a k/v pair iterator!! @godot!!
-	var best_opt = 0
-	var best_opt_val = -INF
-	for option in options.keys():
-		if options[option] > best_opt_val:
-			best_opt_val = options[option]
-			best_opt = option
-	
-	return best_opt
+	return eval(board, side, false, 0)[1]
 
 func think(board, side):
 	mutex.lock()

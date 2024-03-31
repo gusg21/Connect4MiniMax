@@ -6,7 +6,7 @@ const AI_TURN_TIME = 5.0
 
 var current_turn = "player"
 var ai_timer: SceneTreeTimer
-var depth: int = 3
+var depth: int = 4
 var edit_mode: bool = true
 var edit_color: String = "red"
 
